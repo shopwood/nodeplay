@@ -18,14 +18,29 @@ class Server {
         let totalThreads = 0;
         this.tenantThreads.forEach(element => totalThreads += element);
 
-        if (totalThreads < this.expectedThreads) {
+
+        if (totalThreads < this.globalSettings.threadsPerServer) {
             return (this.globalSettings.threadsPerServer - totalThreads) * this.globalSettings.costPerUnderThread;
         } else {
-            return (this.totalThreads- this.globalSettings.threadsPerServer) * this.globalSettings.costPerOverThread;
+            return (totalThreads - this.globalSettings.threadsPerServer) * this.globalSettings.costPerOverThread;
         }
     }
 }
 
 var settings = new GlobalSettings();
-var server = new Server(settings);
-console.log(server.fitness());
+var servers = [];
+for (let i=0; i<4; i++) {
+    servers[i] = new Server(settings);
+}
+
+console.log(serverFitness(servers));
+
+
+function serverFitness(servers) {
+    let result = 0;
+    servers.forEach(element => {
+        result += element.fitness();
+    });
+
+    return result;
+}
