@@ -3,10 +3,10 @@ console.log("testing");
 class GlobalSettings {
     constructor() {
         this.threadsPerServer = 10;
-        this.costPerUnderThread = 0;//-0.25;
-        this.costPerOverThread = 0;//-0.5;
-        this.costPerUnderTenantServerAlloc = 0;//-5;
-        this.costPerOverTenantServerAlloc = -1;
+        this.costPerUnderThread = -0.25;
+        this.costPerOverThread = -0.5;
+        this.costPerUnderTenantServerAlloc = -1;
+        this.costPerOverTenantServerAlloc = -0.25;
     }
 }
 
@@ -70,7 +70,7 @@ function tenantFitness(globalSettings, servers) {
 
         if (count < 2) {
             result += (2 - count) * globalSettings.costPerUnderTenantServerAlloc;
-        } else {
+        } else if (count > 2) {
             result += (count - 2) * globalSettings.costPerOverTenantServerAlloc;
         }
     }
@@ -80,13 +80,15 @@ function tenantFitness(globalSettings, servers) {
 function randomAdjustServers(servers) {
     let selectedTenant = Math.floor(Math.random() * 1000) % 5;
     let selectedServer = Math.floor(Math.random() * 1000) % 4;
-    let adjust = Math.floor(Math.random() * 1000) % 5 - 2;
+    /*let adjust = Math.floor(Math.random() * 1000) % 5 - 2;
 
     var current = servers[selectedServer].tenantThreads[selectedTenant];
     var adjusted = current + adjust;
     if (adjusted > 0) {
         servers[selectedServer].tenantThreads[selectedTenant] = adjusted;
     }
+    */
+   servers[selectedServer].tenantThreads[selectedTenant] = Math.floor(Math.random() * 1000 % 11);
 }
 
 function cloneServers(servers) {
@@ -120,7 +122,7 @@ printServers(servers);
 console.log("Fitness: ", fitness);    
 
 let i = 0;
-for ( i = 0; i<10000; i++) {
+for ( i = 0; i<50000; i++) {
     let newServers = cloneServers(servers);
 
     for (let j = 0; j<10; j++) {
@@ -137,8 +139,6 @@ for ( i = 0; i<10000; i++) {
         printServers(newServers);
         console.log("Generation: " + i + ", Fitness: ", fitness);    
     }
-
-    
 }
 
 console.log("Generation: " + i + ", Fitness: ", fitness);    
